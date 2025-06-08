@@ -1,16 +1,30 @@
 import React from "react";
-import memesData from "../memesData";
 
 export default function Meme() {
 
-    const [memeImage, setMemeImage] = React.useState("")
+    const [meme, setMeme] = React.useState({
+        topText: "",
+        bottomText: "",
+        randomImage: "http://i.imgflip.com/1bij.jpg" 
+    })
+    const [allMemes, setAllMemes] = React.useState([])
+    
+    React.useEffect(() => {
+        fetch("https://api.imgflip.com/get_memes")
+            .then(res => res.json())
+            .then(data => setAllMemes(data.data.memes))
+    }, [])
+    
     function getMemeImage() {
-        const memesArray = memesData.data.memes
-        const randomNumber = Math.floor(Math.random() * memesArray.length)
-        setMemeImage(memesArray[randomNumber].url)
+        const randomNumber = Math.floor(Math.random() * allMemes.length)
+        const url = allMemes[randomNumber].url
+        setMeme(prevMeme => ({
+            ...prevMeme,
+            randomImage: url
+        }))
         
     }
-
+   
     return (
         <main>
             <div className="form">
@@ -19,12 +33,14 @@ export default function Meme() {
                     type="text" 
                     className="form--input" 
                     placeholder="Shut Up"
+                    name="topText"
                 />
                 
                 <input 
                     type="text" 
                     className="form--input" 
                     placeholder="and take my money"
+                    name="bottomText"
                 />
 
                 <button 
@@ -36,8 +52,12 @@ export default function Meme() {
 
             </div>
 
-            <img className="meme--image" src={memeImage} alt="Generated meme" />
-
+            <div className="meme">
+                <img className="meme--image" src={memeImage} alt="Generated meme" />
+                <h2 className="meme--text top">{meme.topText}</h2>
+                <h2 className="meme--text bottom">{meme.bottomText}</h2>
+            </div>
+            
         </main>
     );
 }
